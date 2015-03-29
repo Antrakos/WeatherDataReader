@@ -8,7 +8,8 @@ import jssc.SerialPortException;
 public class COMTest {
 	String COMName;
 	static SerialPort serialPort;
-	static String tmp;
+	static String tmp="";
+	static boolean finished=false;
 	static String t;
 	
 	public COMTest (String COMName)
@@ -16,19 +17,27 @@ public class COMTest {
 		this.COMName = COMName;
 		 
 	}
+	
+	public String getString() {
+		tmp="";
+		finished=false;
+		while (!finished);
+		return tmp;
+	}
+	
 	public String getT() throws SerialPortException {
 		serialPort.writeBytes("temp\r\n".getBytes()); 
-		return tmp;
+		return getString();
 		
 	}
 	public String getH() throws SerialPortException {
 		serialPort.writeBytes("humid\r\n".getBytes()); 
-		return tmp;
+		return getString();
 		
 	}
 	public String getP() throws SerialPortException {
 		serialPort.writeBytes("press\r\n".getBytes()); 
-		return tmp;
+		return getString();
 	}
 	public void run (String baud,String data,String stop)
 	{
@@ -36,7 +45,7 @@ public class COMTest {
 		try {
             serialPort.openPort();//Open port
             serialPort.setParams(Integer.parseInt(baud) , Integer.parseInt(data), Integer.parseInt(stop), 0);//Set params
-            int mask = SerialPort.MASK_RXCHAR + SerialPort.MASK_CTS + SerialPort.MASK_DSR;//Prepare mask
+            int mask = SerialPort.MASK_RXCHAR;//Prepare mask
             serialPort.setEventsMask(mask);//Set mask
             serialPort.addEventListener(new SerialPortReader());//Add SerialPortEventListener
             
@@ -48,30 +57,28 @@ public class COMTest {
 	 static class SerialPortReader implements SerialPortEventListener {
 
 	        public void serialEvent(SerialPortEvent event) {
-	            if(event.isRXCHAR()){//If data is available
-	               tmp = "";
+	        	if (event.isRXCHAR() && event.getEventValue() > 0)
 	                    try {
+	                    	for (byte b:serialPort.readBytes())
 	                    	{
-	                    	t = serialPort.readString(1);
-	                    	System.out.println(t);
+		                    	if (b=='\r')
+		                    	{
+		                    	}
+		                    	else if (b=='\n')
+		                    	{
+		                    		finished=true;
+		                    	}
+		                    	else
+		                    	{
+		                    		tmp=tmp.concat(new String(new byte[] {b}));
+		                    	}
 	                    	}
-	                    	while (t != "n");
-	                    	
-	                    	t = serialPort.readString(1);
-	                    	{
-	                    	t = serialPort.readString(1);
-	                    	if (t != "\n" && t != "\r" ) tmp.concat(t);
-	                    	}
-	                    	while (t != "\n");
 	                    }
 	                    catch (Exception ex) {
 	                        System.out.println(ex);
 	                    }
-	                
-	            }
-	           
-	    }
 	        }
+	 }
 
 
 }

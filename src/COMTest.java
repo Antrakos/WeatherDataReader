@@ -36,14 +36,15 @@ public class COMTest {
 		tmp="";
 		finished=false;
 		serialPort.writeBytes("temp\r\n".getBytes());
-		return getString();
-		
+		String str=getString();
+		return new StringBuilder(str).insert(str.length()-1, ".").toString();
 	}
 	public String getH() throws SerialPortException {
 		tmp="";
 		finished=false;
 		serialPort.writeBytes("humid\r\n".getBytes());
-		return getString();
+		String str=getString();
+		return new StringBuilder(str).insert(str.length()-1, ".").toString();
 		
 	}
 	public String getP() throws SerialPortException {

@@ -19,23 +19,36 @@ public class COMTest {
 	}
 	
 	public String getString() {
-		tmp="";
-		finished=false;
-		while (!finished);
+		int i=0;
+		while ((!finished)&&(i<20))
+		{
+			i++;
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		return tmp;
 	}
 	
 	public String getT() throws SerialPortException {
-		serialPort.writeBytes("temp\r\n".getBytes()); 
+		tmp="";
+		finished=false;
+		serialPort.writeBytes("temp\r\n".getBytes());
 		return getString();
 		
 	}
 	public String getH() throws SerialPortException {
-		serialPort.writeBytes("humid\r\n".getBytes()); 
+		tmp="";
+		finished=false;
+		serialPort.writeBytes("humid\r\n".getBytes());
 		return getString();
 		
 	}
 	public String getP() throws SerialPortException {
+		tmp="";
+		finished=false;
 		serialPort.writeBytes("press\r\n".getBytes()); 
 		return getString();
 	}
@@ -61,6 +74,7 @@ public class COMTest {
 	                    try {
 	                    	for (byte b:serialPort.readBytes())
 	                    	{
+	                    		System.out.println(b);
 		                    	if (b=='\r')
 		                    	{
 		                    	}

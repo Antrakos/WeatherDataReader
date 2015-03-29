@@ -61,9 +61,10 @@ public class UserInreface{
 	private static String[] columnNames = {
 	     "Дата",
 	     "Температура",
-	     "Вологість"
+	     "Вологість",
+	     "Тиск"
 	}; 
-	private static final String[][] dataBase = {{"","",""}};
+	private static final String[][] dataBase = {{"","","",""}};
 	private static TableModelListener tableModelListener;
 	private static JMenu menu_1;
 	private static JMenu menu_2;
@@ -192,12 +193,13 @@ public class UserInreface{
 					        try {
 					        	humidity = connection.getH();
 					        	temperature = connection.getT();
+					        	pressure = connection.getP();
 					        	lab.setText("Температура " + temperature + " Вологість " + humidity + " Тиск " + pressure);
 					        } catch(Exception ex) {}
 					      
 					      
 					  }
-					}, 0,1000);
+					}, 0,500);
 				
 				String	listData[] = SerialPortList.getPortNames();
 				@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -247,7 +249,6 @@ public class UserInreface{
                         comFrame.pack();
                         comFrame.setLocationRelativeTo(null);
                         comFrame.setVisible(true);
-				        lab.setText("Humidity " + humidity + " Temperature " + temperature);
 					}
 				});
 				
@@ -294,8 +295,8 @@ public class UserInreface{
 						weatherDate.addDate(date);
 						usedWeatherData.get(0).addData(temperature);
 						usedWeatherData.get(1).addData(humidity);
-						//weatherData.get(2).addData(preassure);
-						dtm.addRow(new Object[] { date, temperature, humidity});
+						usedWeatherData.get(2).addData(pressure);
+						dtm.addRow(new Object[] { date, temperature, humidity, pressure});
 						
 						dtm.fireTableDataChanged();
 						}

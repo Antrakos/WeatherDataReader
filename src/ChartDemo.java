@@ -1,9 +1,3 @@
-import java.awt.Color;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -15,60 +9,68 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
-public class ChartDemo extends  JComponent{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static Color color;
-    private static String title;
-    private static String xLabel;
-    private static String yLabel;
+import javax.swing.*;
+import java.awt.*;
+import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class ChartDemo extends JComponent {
+    private static final long serialVersionUID = 1L;
+    @SuppressWarnings("serial")
+    private static final DateFormatSymbols myDateFormatSymbols = new DateFormatSymbols() {
+        @Override
+        public String[] getMonths() {
+            return new String[]{"—Å—ñ—á–Ω—è", "–ª—é—Ç–æ–≥–æ", "–±–µ—Ä–µ–∑–Ω—è", "–∫–≤—ñ—Ç–Ω—è", "—Ç—Ä–∞–≤–Ω—è", "—á–µ—Ä–≤–Ω—è",
+                    "–ª–∏–ø–Ω—è", "—Å–µ—Ä–ø–Ω—è", "–≤–µ—Ä–µ—Å–Ω—è", "–∂–æ–≤—Ç–Ω—è", "–ª–∏—Å—Ç–æ–ø–∞–¥–∞", "–≥—Ä—É–¥–Ω—è"};
+        }
+
+    };
     public static WeatherDate date;
     public static WeatherData base;
     public static Date start;
     public static Date end;
     public static int hs;
     public static int he;
+    private static Color color;
+    private static String title;
+    private static String xLabel;
+    private static String yLabel;
 
-    public ChartPanel run(int width,int heigh)
-    {
-    	XYDataset dataset = createDataset();
-        JFreeChart chart = createChart(dataset);
-        ChartPanel p = new ChartPanel(chart,width,heigh,width,heigh,width,heigh,true, true, true, true, true,true);
-        p.setZoomAroundAnchor(true);
-        p.setMouseZoomable(true, false);
-        return p;
-    }
     @SuppressWarnings("static-access")
-	public ChartDemo(WeatherDate date,WeatherData base,Date start, Date end,int hs,int he) 
-    {
-    	this.date= date;
-    	this.base= base;
-    	this.xLabel = "ƒ‡Ú‡";
+    public ChartDemo(WeatherDate date, WeatherData base, Date start, Date end, int hs, int he) {
+        this.date = date;
+        this.base = base;
+        this.xLabel = "–î–∞—Ç–∞";
         this.color = base.getColor();
-    	this.title = base.getTitle();
-    	this.yLabel = base.getYLabel();
+        this.title = base.getTitle();
+        this.yLabel = base.getYLabel();
         this.start = start;
         this.end = end;
-    	this.hs = hs;
+        this.hs = hs;
         this.he = he;
+    }
+    public ChartDemo(WeatherDate date, WeatherData base) {
+        this(date,base,date.getFullDate(0),date.getFullDate(date.getSize()-1),0,24);
+    }
+    public ChartDemo(WeatherDate date, WeatherData base, Date start, Date end) {
+        this(date,base,start,end,0,24);
+    }
+    public ChartDemo(WeatherDate date, WeatherData base, int hs, int he) {
+        this(date,base,date.getFullDate(0),date.getFullDate(date.getSize()-1),hs,he);
     }
 
     private static JFreeChart createChart(XYDataset dataset) {
-
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
-        	title,  			// title
-            xLabel,             // x-axis label
-            yLabel,   // y-axis label
-            dataset,            // data
-            true,               // create legend?
-            true,               // generate tooltips?
-            false               // generate URLs?
+                title,            // title
+                xLabel,             // x-axis label
+                yLabel,   // y-axis label
+                dataset,            // data
+                true,               // create legend?
+                true,               // generate tooltips?
+                false               // generate URLs?
         );
- 
         chart.setBackgroundPaint(Color.white);
-
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setBackgroundPaint(Color.lightGray);
         plot.setDomainGridlinePaint(Color.white);
@@ -76,86 +78,53 @@ public class ChartDemo extends  JComponent{
         plot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
         plot.setDomainCrosshairVisible(true);
         plot.setRangeCrosshairVisible(true);
-        
         plot.getRenderer().setSeriesPaint(0, color);
-        
-        
         DateAxis axis = (DateAxis) plot.getDomainAxis();
-        if ((date.getDate(0)).length() < 11)
-        {
-        	axis.setDateFormatOverride(new SimpleDateFormat("dd MMMM yyyy", myDateFormatSymbols));
-        }
-        else if ((date.getDate(0)).length() < 18)
-        {
-        	axis.setDateFormatOverride(new SimpleDateFormat("dd MMMM yyyy HH:mm", myDateFormatSymbols));
-        }
-        else
-        {
-        	axis.setDateFormatOverride(new SimpleDateFormat("dd MMMM yyyy HH:mm:ss", myDateFormatSymbols));
-        }
-        
-      
+        axis.setDateFormatOverride(new SimpleDateFormat(date.dateType(),myDateFormatSymbols));
         return chart;
-
     }
-    
+
     /**
      * Creates a dataset, consisting of two series of monthly data.
      *
      * @return The dataset.
      */
     @SuppressWarnings("deprecation")
-	private static XYDataset createDataset() {
-
+    private static XYDataset createDataset() {
         TimeSeries s1 = new TimeSeries(title, Second.class);
-        TimeSeries s2 = new TimeSeries(title + ": ÒÂÂ‰Ì∫ ÁÌ‡˜ÂÌÌˇ", Second.class);
-        int count = 0; double mid = 0; Date start1 = null,end1 = null; 
-        try 
-    	{
-    	for (int i = 0; i < base.getSize();i++)
-    	{
-            
-            if (date.getFullDate(i).after(start) && date.getFullDate(i).before(end) && date.getFullDate(i).getHours() >= hs && date.getFullDate(i).getHours() <= he)
-            {
-                mid +=  base.getData(i);
-                if (count == 0) start1 = date.getFullDate(i);
-                end1 = date.getFullDate(i);;
-                count++;
-                s1.add(new Second( date.getFullDate(i) ),base.getData(i));
+        TimeSeries s2 = new TimeSeries(title + ": —Å–µ—Ä–µ–¥–Ω—î –∑–Ω–∞—á–µ–Ω–Ω—è", Second.class);
+        int count = 0;
+        double mid = 0;
+        Date start1 = null, end1 = null;
+        try {
+            for (int i = 0; i < base.getSize(); i++) {
+                if (date.getFullDate(i).after(start) && date.getFullDate(i).before(end) && date.getFullDate(i).getHours() >= hs && date.getFullDate(i).getHours() <= he) {
+                    mid += base.getData(i);
+                    if (count == 0) start1 = date.getFullDate(i);
+                    end1 = date.getFullDate(i);
+                    count++;
+                    s1.add(new Second(date.getFullDate(i)), base.getData(i));
+                }
             }
-    		
-    	}
-        mid /= count;
-        s2.add(new Second(start1),mid);
-        s2.add(new Second(end1),mid);
-    	}
-    	catch (Exception ex) {}
+            mid /= count;
+            s2.add(new Second(start1), mid);
+            s2.add(new Second(end1), mid);
+        } catch (Exception ex) {
+        }
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(s1);
         dataset.addSeries(s2);
-        
-        
         dataset.setDomainIsPointsInTime(true);
-
         return dataset;
-
     }
-
-    public static JPanel createDemoPanel() {
-        JFreeChart chart = createChart(createDataset());
-        return new ChartPanel(chart);
+    public ChartPanel run(int width, int heigh) {
+        XYDataset dataset = createDataset();
+        JFreeChart chart = createChart(dataset);
+        ChartPanel p = new ChartPanel(chart, width, heigh, width, heigh, width, heigh, true, true, true, true, true, true);
+        p.setZoomAroundAnchor(true);
+        p.setMouseZoomable(true, false);
+        return p;
     }
-
-    @SuppressWarnings("serial")
-	private static final DateFormatSymbols myDateFormatSymbols = new DateFormatSymbols(){
-
-        @Override
-        public String[] getMonths() {
-            return new String[]{"Ò≥˜Ìˇ", "Î˛ÚÓ„Ó", "·ÂÂÁÌˇ", "Í‚≥ÚÌˇ", "Ú‡‚Ìˇ", "˜Â‚Ìˇ",
-                "ÎËÔÌˇ", "ÒÂÔÌˇ", "‚ÂÂÒÌˇ", "ÊÓ‚ÚÌˇ", "ÎËÒÚÓÔ‡‰‡", "„Û‰Ìˇ"};
-        }
-        
-    };
 
 }

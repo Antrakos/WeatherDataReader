@@ -1,5 +1,3 @@
-//Import packages
-
 import jssc.SerialPortList;
 import org.jfree.ui.tabbedui.VerticalLayout;
 
